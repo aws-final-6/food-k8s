@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+  namespace: MLR-DEV-FE-NS
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: MLR-DEV-FE-SVC
+            port:
+              number: 80
+  - host: backend.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: MLR-DEV-BE-SVC
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - example.com
+    - backend.example.com
+    secretName: MLR-DEV-TLS-SEC

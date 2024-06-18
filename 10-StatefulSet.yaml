@@ -1,35 +1,42 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: nginx
-  namespace: default
+  name: mongo
 spec:
+  serviceName: "mongo"
+  replicas: 3
   selector:
     matchLabels:
-      app: nginx # has to match .spec.template.metadata.labels
-  serviceName: "nginx"
-  replicas: 3 # by default is 1
+      app: mongo
   template:
     metadata:
       labels:
-        app: nginx # has to match .spec.selector.matchLabels
+        app: mongo
     spec:
-      terminationGracePeriodSeconds: 10
       containers:
-      - name: nginx
-        image: nginx-slim:1.16.1
+      - name: mongo
+        image: mongo:4
         ports:
-        - containerPort: 80
-          name: web
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mlr-dev-db-sec
+              key: mongo-username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mlr-dev-db-sec
+              key: mongo-password
         volumeMounts:
-        - name: www
-          mountPath: /usr/share/nginx/html
+        - name: mlr-dev-db-pvc
+          mountPath: /data/db
   volumeClaimTemplates:
   - metadata:
-      name: www
+      name: mlr-dev-db-pvc
     spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "my-storage-class"
+      accessModes: ["ReadWriteOnce"]
       resources:
         requests:
-          storage: 1Gi
+          storage: 10Gi
