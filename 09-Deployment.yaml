@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: 192.168.56.200/mylittlerecipebook/mlr-dev-fe-img:latest
+        image: 192.168.56.200/mylittlerecipebook/mlr-dev-fe-img:init
         ports:
         - containerPort: 3000
         env:
@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: 192.168.56.200/mylittlerecipebook/mlr-dev-be-img:latest
+        image: 192.168.56.200/mylittlerecipebook/mlr-dev-be-img:init
         ports:
         - containerPort: 3000
         env:
@@ -126,4 +126,3 @@ spec:
             secretKeyRef:
               name: mlr-dev-be-sec-fap
               key: YOUTUBE_API_KEY
----
