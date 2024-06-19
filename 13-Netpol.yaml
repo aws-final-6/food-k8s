@@ -43,7 +43,7 @@ spec:
           app: backend
     ports:
     - protocol: TCP
-      port: 
+      port: 4000
 
 ---
 apiVersion: networking.k8s.io/v1
