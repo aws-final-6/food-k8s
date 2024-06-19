@@ -14,7 +14,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: MLR-DEV-BE-NS
+          name: mlr-dev-be-ns
     ports:
     - protocol: TCP
       port: 3000
@@ -22,7 +22,7 @@ spec:
   - to:
     - namespaceSelector:
         matchLabels:
-          name: MLR-DEV-BE-NS
+          name: mlr-dev-be-ns
     ports:
     - protocol: TCP
       port: 3000
