@@ -1,13 +1,13 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: frontend-ingress
-  namespace: MLR-DEV-FE-NS
+  name: mlr-dev-fe-ing
+  namespace: mlr-dev-fe-ns
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: example.com
+  - host: book.mylittle.recipes
     http:
       paths:
       - path: /
@@ -16,19 +16,28 @@ spec:
           service:
             name: MLR-DEV-FE-SVC
             port:
-              number: 80
-  - host: backend.example.com
+              number: 4000
+  tls:
+  - hosts:
+    - book.mylittle.recipes
+    secretName: mlr-dev-tls-sec
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mlr-dev-be-ing
+  namespace: mlr-dev-fe-ns
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: book.mylittle.recipes
     http:
       paths:
-      - path: /
+      - path: /auth
         pathType: Prefix
         backend:
           service:
-            name: MLR-DEV-BE-SVC
+            name: mlr-dev-be-svc-nod
             port:
-              number: 80
-  tls:
-  - hosts:
-    - example.com
-    - backend.example.com
-    secretName: MLR-DEV-TLS-SEC
+              number: 3000
