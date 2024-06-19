@@ -2,8 +2,8 @@
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: LimitRangeName
-  namespace: default
+  name: mlr-dev-fe-lrg
+  namespace: mlr-dev-fe-ns
 spec:
   limits:
   # 'default' and 'defaultRequest' may not be specified when type is 'Pod'
@@ -25,8 +25,8 @@ spec:
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: LimitRangeName
-  namespace: default
+  name: mlr-dev-be-lrg
+  namespace: mlr-dev-be-ns
 spec:
   limits:
   - type: PersistentVolumeClaim
