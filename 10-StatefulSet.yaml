@@ -39,9 +39,9 @@ spec:
         - -c
         - |
           if [ "$(hostname)" == "mlr-dev-db-sts-0" ]; then
-            mongo --eval "rs.initiate()"
-            mongo --eval "rs.add('mlr-dev-db-sts-1.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017')"
-            mongo --eval "rs.add('mlr-dev-db-sts-2.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017')"
+            mongo --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mlr-dev-db-svc-fst.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017'}]})"
+            mongo --eval "rs.add({_id: 1, host: 'mlr-dev-db-svc-scd.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017'})"
+            mongo --eval "rs.add({_id: 2, host: 'mlr-dev-db-svc-trd.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017'})"
           else
             until mongo --eval "rs.status()" | grep -q PRIMARY; do
               sleep 1
@@ -59,4 +59,4 @@ spec:
       resources:
         requests:
           storage: 10Gi
-      storageClassName: openebs-
+      storageClassName: openebs-hostpath
