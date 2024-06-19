@@ -1,21 +1,24 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mongo
+  name: mlr-dev-db-sts
+  namespace: mlr-dev-db-ns
 spec:
-  serviceName: "mongo"
+  serviceName: mlr-dev-db-svc
   replicas: 3
   selector:
     matchLabels:
-      app: mongo
+      app: database
+      tier: web
   template:
     metadata:
       labels:
-        app: mongo
+        app: database
+        tier: web
     spec:
       containers:
-      - name: mongo
-        image: mongo:4
+      - name: mongodb
+        image: 192.168.56.200/mylittlerecipebook/mongo:4
         ports:
         - containerPort: 27017
         env:
@@ -23,20 +26,37 @@ spec:
           valueFrom:
             secretKeyRef:
               name: mlr-dev-db-sec
-              key: mongo-username
+              key: MONGO_INITDB_ROOT_USERNAME
         - name: MONGO_INITDB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mlr-dev-db-sec
-              key: mongo-password
+              key: MONGO_INITDB_ROOT_PASSWORD
+        - name: MONGO_REPLICA_SET
+          value: "rs0"
+        command:
+        - /bin/sh
+        - -c
+        - |
+          if [ "$(hostname)" == "mlr-dev-db-sts-0" ]; then
+            mongo --eval "rs.initiate()"
+            mongo --eval "rs.add('mlr-dev-db-sts-1.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017')"
+            mongo --eval "rs.add('mlr-dev-db-sts-2.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017')"
+          else
+            until mongo --eval "rs.status()" | grep -q PRIMARY; do
+              sleep 1
+            done
+            mongo --eval "rs.status()"
+          fi
         volumeMounts:
-        - name: mlr-dev-db-pvc
+        - name: mongodb-storage
           mountPath: /data/db
   volumeClaimTemplates:
   - metadata:
-      name: mlr-dev-db-pvc
+      name: mongodb-storage
     spec:
-      accessModes: ["ReadWriteOnce"]
+      accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
           storage: 10Gi
+      storageClassName: openebs-
