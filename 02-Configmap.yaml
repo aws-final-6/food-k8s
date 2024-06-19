@@ -2,21 +2,23 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mlr-dev-fe-cm
-  namespace: mlr-dev-fe-ns
 data:
-  NEXT_PUBLIC_API_URL: 
+  API_URL: "http://mlr-dev-be-svc-nod.mlr-dev-be-ns.svc.cluster.local:3000"
+  FAST_API_URL: “http://mlr-dev-be-svc-fap.mlr-dev-be-ns.svc.cluster.local:5000”
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mlr-dev-de-cm
-  namespace: mlr-dev-be-ns
+  name: mlr-dev-de-cm-nod
+  namespace: mlr-dev-de-ns
 data:
-  DATABASE_URL:
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mlr-dev-db-cm
-  namespace: mlr-dev-db-ns
-data:
+  MONGO_URI: “mlr-dev-db-svc.mlr-dev-db-ns.svc-cluster.local:27017"
+# MONGO_PRI_URI: “mlr-dev-db-pri-svc.mlr-dev-db-ns.svc-cluster.local:27017"
+# MONGO_SCD_URI: “mlr-dev-db-scd-svc.mlr-dev-db-ns.svc-cluster.local:27017"
+  FRONT_URI: "http://mlr-dev-fe-svc.mlr-dev-fe-ns.svc.cluster.local:4000"
+  KAKAO_REDIRECT_URI: "http://mlr-dev-be-svc-nod.mlr-dev-be-ns.svc.cluster.local:3000/auth/kakao/redirect"
+  KAKAO_SCOPE: "openid,account_email"
+  NAVER_REDIRECT_URI: "http://mlr-dev-be-svc-nod.mlr-dev-be-ns.svc.cluster.local:3000/auth/naver/redirect"
+  NAVER_STATE: "1234567890"
+  GOOGLE_REDIRECT_URI: "http://book.mylittle.recipes:3000/auth/google/redirect"
+  GOOGLE_SCOPE: "openid email"
