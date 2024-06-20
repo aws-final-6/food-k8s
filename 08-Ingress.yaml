@@ -7,8 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: book.mylittle.recipes
-    http:
+  - http:
       paths:
       - path: /
         pathType: Prefix
@@ -17,7 +16,7 @@ spec:
             name: mlr-dev-fe-svc
             port:
               number: 4000
-  # tls:
-  # - hosts:
-  #   - book.mylittle.recipes
-  #   secretName: mlr-dev-tls-sec
+  tls:
+  - hosts:
+    - book.mylittle.recipes
+    secretName: mlr-dev-tls-sec

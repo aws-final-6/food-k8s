@@ -47,7 +47,7 @@ metadata:
   namespace: mlr-dev-db-ns
 spec:
   selector:
-    app: frontend
+    app: database
   type: ClusterIP
   ports:
   - protocol: TCP
@@ -61,13 +61,13 @@ metadata:
   namespace: mlr-dev-db-ns
 spec:
   selector:
-    app: frontend
+    app: database
   type: NodePort
   ports:
   - protocol: TCP
     port: 27017
     targetPort: 27017
-  nodePort: 32301
+    nodePort: 32301
 ---
 apiVersion: v1
 kind: Service
@@ -76,13 +76,13 @@ metadata:
   namespace: mlr-dev-db-ns
 spec:
   selector:
-    app: frontend
+    app: database
   type: NodePort
   ports:
   - protocol: TCP
     port: 27017
     targetPort: 27017
-  nodePort: 32302
+    nodePort: 32302
 ---
 apiVersion: v1
 kind: Service
@@ -91,7 +91,7 @@ metadata:
   namespace: mlr-dev-db-ns
 spec:
   selector:
-    app: frontend
+    app: database
   type: NodePort
   ports:
   - protocol: TCP
