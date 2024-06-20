@@ -5,9 +5,13 @@ metadata:
   namespace: mlr-dev-fe-ns
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
+  ingressClassName: nginx
   rules:
-  - http:
+  - host: book.mylittle.recipes
+    http:
       paths:
       - path: /
         pathType: Prefix
@@ -17,6 +21,27 @@ spec:
             port:
               number: 4000
   tls:
-  - hosts:
+  - secretName: mlr-dev-tls-sec
+    hosts:
     - book.mylittle.recipes
-    secretName: mlr-dev-tls-sec
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mlr-dev-be-ing
+  namespace: mlr-dev-be-ns
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: book.mylittle.recipes
+    http:
+      paths:
+      - path: /back(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: mlr-dev-be-svc-nod
+            port:
+              number: 3000

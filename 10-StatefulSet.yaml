@@ -1,53 +1,42 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mlr-dev-db-sts
+  name: mlr-dev-db-sfs
   namespace: mlr-dev-db-ns
 spec:
-  serviceName: mlr-dev-db-svc
+  serviceName: mlr-dev-db-svc-sfs
   replicas: 3
   selector:
     matchLabels:
       app: database
-      tier: web
   template:
     metadata:
       labels:
         app: database
-        tier: web
     spec:
+      initContainers:
+      - name: init-mongo
+        image: mongo:4.4.29
+        command:
+        - "sh"
+        - "-c"
+        - >
+          if [ $(hostname -s) == "mlr-dev-db-sfs-0" ]; then
+            until mongo --host mlr-dev-db-sfs-0.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017 --eval 'rs.initiate({_id: "rs0", members: [{ _id: 0, host: "mlr-dev-db-sfs-0.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017" }, { _id: 1, host: "mlr-dev-db-sfs-1.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017" }, { _id: 2, host: "mlr-dev-db-sfs-2.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017" }]})' || mongo --host mlr-dev-db-sfs-0.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017 --eval 'rs.status()' | grep -q "myState" ; do sleep 10; done
+          fi
       containers:
       - name: mongodb
         image: 192.168.56.200/mylittlerecipebook/mongo:4
         ports:
         - containerPort: 27017
         env:
-        # - name: MONGO_INITDB_ROOT_USERNAME
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: mlr-dev-db-sec
-        #       key: MONGO_INITDB_ROOT_USERNAME
-        # - name: MONGO_INITDB_ROOT_PASSWORD
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: mlr-dev-db-sec
-        #       key: MONGO_INITDB_ROOT_PASSWORD
         - name: MONGO_REPLICA_SET
           value: "rs0"
         command:
-        - /bin/sh
-        - -c
-        - |
-          if [ "$(hostname)" == "mlr-dev-db-sts-0" ]; then
-            mongo --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mlr-dev-db-svc-fst.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017'}]})"
-            mongo --eval "rs.add({_id: 1, host: 'mlr-dev-db-svc-scd.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017'})"
-            mongo --eval "rs.add({_id: 2, host: 'mlr-dev-db-svc-trd.mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local:27017'})"
-          else
-            until mongo --eval "rs.status()" | grep -q PRIMARY; do
-              sleep 1
-            done
-            mongo --eval "rs.status()"
-          fi
+        - "mongod"
+        - "--bind_ip_all"
+        - "--replSet"
+        - "rs0"
         volumeMounts:
         - name: mongodb-storage
           mountPath: /data/db

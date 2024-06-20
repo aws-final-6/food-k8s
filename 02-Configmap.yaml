@@ -13,13 +13,13 @@ metadata:
   name: mlr-dev-be-cm-nod
   namespace: mlr-dev-be-ns
 data:
-  MONGO_URI: "mongodb://mlr-dev-db-svc-sts.mlr-dev-db-ns.svc.cluster.local:27017/mlrDB"
+  MONGO_URI: "mongodb://mlr-dev-db-sfs-0.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017,mlr-dev-db-sfs-1.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017,mlr-dev-db-sfs-2.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017/mlrDB?replicaSet=rs0&readPreference=secondary"
 # MONGO_PRI_URI: “mlr-dev-db-pri-svc.mlr-dev-db-ns.svc-cluster.local:27017"
 # MONGO_SCD_URI: “mlr-dev-db-scd-svc.mlr-dev-db-ns.svc-cluster.local:27017"
-  FRONT_URI: "http://mlr-dev-fe-svc.mlr-dev-fe-ns.svc.cluster.local:4000"
-  KAKAO_REDIRECT_URI: "http://mlr-dev-be-svc-nod.mlr-dev-be-ns.svc.cluster.local:3000/auth/kakao/redirect"
+  FRONT_URI: "https://book.mylittle.recipes:32423"
+  KAKAO_REDIRECT_URI: "https://book.mylittle.recipes:32423/back/auth/kakao/redirect"
   KAKAO_SCOPE: "openid,account_email"
-  NAVER_REDIRECT_URI: "http://mlr-dev-be-svc-nod.mlr-dev-be-ns.svc.cluster.local:3000/auth/naver/redirect"
+  NAVER_REDIRECT_URI: "https://book.mylittle.recipes:32423/back/auth/naver/redirect"
   NAVER_STATE: "1234567890"
-  GOOGLE_REDIRECT_URI: "http://book.mylittle.recipes:3000/auth/google/redirect"
+  GOOGLE_REDIRECT_URI: "https://book.mylittle.recipes:32423/back/auth/google/redirect"
   GOOGLE_SCOPE: "openid email"
