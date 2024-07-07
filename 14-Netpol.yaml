@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: mlr-dev-fe-ns
+  name: mlr-dev-fe-np
   namespace: mlr-dev-fe-ns
 spec:
   podSelector:
@@ -14,8 +14,15 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
+          name: ingress-nginx
+    - namespaceSelector:
+        matchLabels:
           name: mlr-dev-be-ns
     ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
     - protocol: TCP
       port: 3000
   egress:
@@ -26,6 +33,10 @@ spec:
     ports:
     - protocol: TCP
       port: 3000
+    - protocol: TCP
+      port: 4000
+    - protocol: TCP
+      port: 5000
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -35,31 +46,64 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: frontend
+      app: backend
+  policyTypes:
+  - Ingress
+  - Egress
   ingress:
   - from:
-    - podSelector:
+    - namespaceSelector:
         matchLabels:
-          app: backend
+          name: mlr-dev-fe-ns
+    - namespaceSelector:
+        matchLabels:
+          name: mlr-dev-db-ns
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
     ports:
     - protocol: TCP
+      port: 3000
+    - protocol: TCP
       port: 4000
-
+    - protocol: TCP
+      port: 5000
+    - protocol: TCP
+      port: 27017
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: mlr-dev-db-ns
+    ports:
+    - protocol: TCP
+      port: 27017
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: mlr-dev-fe-np
-  namespace: mlr-dev-fe-ns
+  name: mlr-dev-db-np
+  namespace: mlr-dev-db-ns
 spec:
   podSelector:
     matchLabels:
-      app: backend
+      app: database
+  policyTypes:
+  - Ingress
+  - Egress
   ingress:
   - from:
-    - podSelector:
+    - namespaceSelector:
         matchLabels:
-          app: frontend
+          name: mlr-dev-be-ns
     ports:
     - protocol: TCP
-      port: 3000
+      port: 27017
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: mlr-dev-be-ns
+    ports:
+    - protocol: TCP
+      port: 27017

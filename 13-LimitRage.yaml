@@ -6,22 +6,20 @@ metadata:
   namespace: mlr-dev-fe-ns
 spec:
   limits:
-  # 'default' and 'defaultRequest' may not be specified when type is 'Pod'
   - type: Container
-    default:
-      cpu: 100m
-      memory: 512Mi
     defaultRequest:
-      cpu: 100m
-      memory: 256Mi
+      cpu: "200m"
+      memory: "256Mi"
+    default:
+      cpu: "400m"
+      memory: "512Mi"
     max:
-      cpu: 200m
+      cpu: 600m
       memory: 512Mi
     min:
       cpu: 100m
       memory: 256Mi
 ---
-# LimitRange for PersistentVolumeClaim
 apiVersion: v1
 kind: LimitRange
 metadata:
@@ -29,12 +27,16 @@ metadata:
   namespace: mlr-dev-be-ns
 spec:
   limits:
-  - type: PersistentVolumeClaim
-    default:
-      storage: 2Gi
+  - type: Container
     defaultRequest:
-      storage: 2Gi
+      cpu: "200m"
+      memory: "256Mi"
+    default:
+      cpu: "400m"
+      memory: "512Mi"
     max:
-      storage: 2Gi
+      cpu: 600m
+      memory: 512Mi
     min:
-      storage: 2Gi
+      cpu: 100m
+      memory: 256Mi
