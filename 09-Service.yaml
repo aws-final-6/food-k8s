@@ -43,16 +43,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mlr-dev-db-svc-sfs
+  name: mlr-dev-db-svc
   namespace: mlr-dev-db-ns
 spec:
-  selector:
-    app: database
-  clusterIP: None
   ports:
-  - protocol: TCP
-    port: 27017
-    targetPort: 27017
+  - port: 3306
+    name: mysql
+  clusterIP: None
+  selector:
+    app: mysql
 ---
 apiVersion: v1
 kind: Service
@@ -61,12 +60,12 @@ metadata:
   namespace: mlr-dev-db-ns
 spec:
   selector:
-    statefulset.kubernetes.io/pod-name: mlr-dev-db-sfs-0
+    statefulset.kubernetes.io/pod-name: mlr-dev-db-sts-0
   type: NodePort
   ports:
   - protocol: TCP
-    port: 27017
-    targetPort: 27017
+    port: 3306
+    targetPort: 3306
     nodePort: 32301
 ---
 apiVersion: v1
@@ -76,12 +75,12 @@ metadata:
   namespace: mlr-dev-db-ns
 spec:
   selector:
-    statefulset.kubernetes.io/pod-name: mlr-dev-db-sfs-1
+    statefulset.kubernetes.io/pod-name: mlr-dev-db-sts-1
   type: NodePort
   ports:
   - protocol: TCP
-    port: 27017
-    targetPort: 27017
+    port: 3306
+    targetPort: 3306
     nodePort: 32302
 ---
 apiVersion: v1
@@ -91,10 +90,10 @@ metadata:
   namespace: mlr-dev-db-ns
 spec:
   selector:
-    statefulset.kubernetes.io/pod-name: mlr-dev-db-sfs-2
+    statefulset.kubernetes.io/pod-name: mlr-dev-db-sts-2
   type: NodePort
   ports:
   - protocol: TCP
-    port: 27017
-    targetPort: 27017
+    port: 3306
+    targetPort: 3306
     nodePort: 32303

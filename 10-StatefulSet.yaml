@@ -1,51 +1,56 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mlr-dev-db-sfs
+  name: mlr-dev-db-sts
   namespace: mlr-dev-db-ns
 spec:
-  serviceName: mlr-dev-db-svc-sfs
-  replicas: 3
   selector:
     matchLabels:
-      app: database
+      app: mysql
+  serviceName: "mlr-dev-db-svc"
+  replicas: 1
   template:
     metadata:
       labels:
-        app: database
+        app: mysql
     spec:
-      initContainers:
-      - name: init-mongo
-        image: mongo:4.4.29
-        command:
-        - "sh"
-        - "-c"
-        - >
-          if [ $(hostname -s) == "mlr-dev-db-sfs-0" ]; then
-            until mongo --host mlr-dev-db-sfs-0.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017 --eval 'rs.initiate({_id: "rs0", members: [{ _id: 0, host: "mlr-dev-db-sfs-0.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017" }, { _id: 1, host: "mlr-dev-db-sfs-1.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017" }, { _id: 2, host: "mlr-dev-db-sfs-2.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017" }]})' || mongo --host mlr-dev-db-sfs-0.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017 --eval 'rs.status()' | grep -q "myState" ; do sleep 10; done
-          fi
       containers:
-      - name: mongodb
-        image: 192.168.56.200/mylittlerecipebook/mongo:4
-        ports:
-        - containerPort: 27017
+      - name: mysql
+        image: 192.168.56.200/mylittlerecipebook/mlr-dev-db-img-msq:1.0
         env:
-        - name: MONGO_REPLICA_SET
-          value: "rs0"
-        command:
-        - "mongod"
-        - "--bind_ip_all"
-        - "--replSet"
-        - "rs0"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mlr-dev-db-sec
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mlr-dev-db-sec
+              key: MYSQL_DATABASE
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mlr-dev-db-sec
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mlr-dev-db-sec
+              key: MYSQL_PASSWORD
+        ports:
+        - containerPort: 3306
+          name: mysql
         volumeMounts:
-        - name: mongodb-storage
-          mountPath: /data/db
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
   volumeClaimTemplates:
   - metadata:
-      name: mongodb-storage
+      name: mysql-persistent-storage
+      namespace: mlr-dev-db-ns
     spec:
       accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "openebs-hostpath"
       resources:
         requests:
           storage: 10Gi
-      storageClassName: openebs-hostpath

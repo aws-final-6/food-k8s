@@ -15,7 +15,7 @@ spec:
     spec:
       initContainers:
       - name: wait-for-backend
-        image: 192.168.56.200/mylittlerecipebook/busybox:1.31
+        image: 192.168.56.200/mylittlerecipebook/mlr-dev-db-img-msq:1.0
         command: ['sh', '-c', "until nslookup mlr-dev-be-svc-nod.mlr-dev-be-ns.svc.cluster.local; do echo waiting for backend; sleep 2; done"]
       containers:
       - name: frontend
@@ -29,16 +29,16 @@ spec:
             configMapKeyRef:
               name: mlr-dev-fe-cm
               key: API_URL
-        # - name: FAST_API_URL
-        #   valueFrom:
-        #     configMapKeyRef:
-        #       name: mlr-dev-fe-cm
-        #       key: FAST_API_URL
+        - name: FAST_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mlr-dev-fe-cm
+              key: FAST_API_URL
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mlr-dev-be-dpl
+  name: mlr-dev-be-dpl-nod
   namespace: mlr-dev-be-ns
 spec:
   replicas: 3
@@ -51,83 +51,138 @@ spec:
         app: backend
     spec:
       initContainers:
-      - name: wait-for-db
-        image: 192.168.56.200/mylittlerecipebook/busybox:1.31
-        command: ['sh', '-c', "until nslookup mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local; do echo waiting for db; sleep 2; done"]
+        - name: wait-for-db
+          image: 192.168.56.200/mylittlerecipebook/busybox:1.31
+          command: ['sh', '-c', "until nslookup mlr-dev-db-svc-pri.mlr-dev-db-ns.svc.cluster.local; do echo waiting for db; sleep 2; done"]
       containers:
-      - name: backend
-        image: 192.168.56.200/mylittlerecipebook/mlr-dev-be-img:6
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 3000
-        env:
-        - name: MONGO_URI
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-be-cm-nod
-              key: MONGO_URI
-        - name: FRONT_URI
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-be-cm-nod
-              key: FRONT_URI
-        - name: KAKAO_REDIRECT_URI
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-be-cm-nod
-              key: KAKAO_REDIRECT_URI
-        - name: KAKAO_SCOPE
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-be-cm-nod
-              key: KAKAO_SCOPE
-        - name: NAVER_REDIRECT_URI
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-be-cm-nod
-              key: NAVER_REDIRECT_URI
-        - name: NAVER_STATE
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-be-cm-nod
-              key: NAVER_STATE
-        - name: GOOGLE_REDIRECT_URI
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-be-cm-nod
-              key: GOOGLE_REDIRECT_URI
-        - name: GOOGLE_SCOPE
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-be-cm-nod
-              key: GOOGLE_SCOPE
-        - name: KAKAO_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: mlr-dev-be-sec-nod
-              key: KAKAO_CLIENT_ID
-        - name: KAKAO_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: mlr-dev-be-sec-nod
-              key: KAKAO_CLIENT_SECRET
-        - name: NAVER_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: mlr-dev-be-sec-nod
-              key: NAVER_CLIENT_ID
-        - name: NAVER_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: mlr-dev-be-sec-nod
-              key: NAVER_CLIENT_SECRET
-        - name: GOOGLE_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: mlr-dev-be-sec-nod
-              key: GOOGLE_CLIENT_ID
-        - name: GOOGLE_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: mlr-dev-be-sec-nod
-              key: GOOGLE_CLIENT_SECRET
+        - name: backend
+          image: 192.168.56.200/mylittlerecipebook/mlr-dev-be-img-nod:11
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: FRONT_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-be-cm-nod
+                  key: FRONT_URI
+            - name: KAKAO_REDIRECT_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-be-cm-nod
+                  key: KAKAO_REDIRECT_URI
+            - name: KAKAO_SCOPE
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-be-cm-nod
+                  key: KAKAO_SCOPE
+            - name: NAVER_REDIRECT_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-be-cm-nod
+                  key: NAVER_REDIRECT_URI
+            - name: NAVER_STATE
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-be-cm-nod
+                  key: NAVER_STATE
+            - name: GOOGLE_REDIRECT_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-be-cm-nod
+                  key: GOOGLE_REDIRECT_URI
+            - name: GOOGLE_SCOPE
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-be-cm-nod
+                  key: GOOGLE_SCOPE
+            - name: KAKAO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-nod
+                  key: KAKAO_CLIENT_ID
+            - name: KAKAO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-nod
+                  key: KAKAO_CLIENT_SECRET
+            - name: NAVER_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-nod
+                  key: NAVER_CLIENT_ID
+            - name: NAVER_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-nod
+                  key: NAVER_CLIENT_SECRET
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-nod
+                  key: GOOGLE_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-nod
+                  key: GOOGLE_CLIENT_SECRET
+            - name: MYSQL_WRITE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-be-cm-nod
+                  key: MYSQL_WRITE_HOST
+            - name: MYSQL_READ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-be-cm-nod
+                  key: MYSQL_READ_HOST
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-nod
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-nod
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-nod
+                  key: MYSQL_DATABASE
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlr-dev-be-dpl-fap
+  namespace: mlr-dev-be-ns
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      initContainers:
+        - name: wait-for-redis
+          image: 192.168.56.200/mylittlerecipebook/busybox:1.31
+          command: ['sh', '-c', "until nslookup mlr-dev-rds-svc-pri.redis.svc.cluster.local; do echo waiting for redis; sleep 2; done"]
+      containers:
+        - name: backend
+          image: 192.168.56.200/mylittlerecipebook/mlr-dev-be-img-fap:5
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: mlr-dev-be-cm-fap
+          env:
+            - name: YOUTUBE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mlr-dev-be-sec-fap
+                  key: YOUTUBE_API_KEY

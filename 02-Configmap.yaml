@@ -13,9 +13,7 @@ metadata:
   name: mlr-dev-be-cm-nod
   namespace: mlr-dev-be-ns
 data:
-  MONGO_URI: "mongodb://mlr-dev-db-sfs-0.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017,mlr-dev-db-sfs-1.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017,mlr-dev-db-sfs-2.mlr-dev-db-svc-sfs.mlr-dev-db-ns.svc.cluster.local:27017/mlrDB?replicaSet=rs0&readPreference=secondary"
-# MONGO_PRI_URI: “mlr-dev-db-pri-svc.mlr-dev-db-ns.svc-cluster.local:27017"
-# MONGO_SCD_URI: “mlr-dev-db-scd-svc.mlr-dev-db-ns.svc-cluster.local:27017"
+  MYSQL_HOST: "mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local"
   FRONT_URI: "https://192.168.0.206:32423"
   KAKAO_REDIRECT_URI: "https://192.168.0.206:32423/back/auth/kakao/redirect"
   KAKAO_SCOPE: "openid,account_email"
@@ -23,3 +21,15 @@ data:
   NAVER_STATE: "1234567890"
   GOOGLE_REDIRECT_URI: "https://192.168.0.206:32423/back/auth/google/redirect"
   GOOGLE_SCOPE: "openid email"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlr-dev-be-cm-fap
+  namespace: mlr-dev-be-ns
+data:
+  REDIS_PRIMARY_HOST: mlr-dev-rds-svc-pri.redis.svc.cluster.local
+  REDIS_REPLICA_HOST: mlr-dev-rds-svc-rep.redis.svc.cluster.local
+  REDIS_PORT: "6379"
+
+
