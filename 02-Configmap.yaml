@@ -28,8 +28,8 @@ metadata:
   name: mlr-dev-be-cm-fap
   namespace: mlr-dev-be-ns
 data:
-  REDIS_PRIMARY_HOST: mlr-dev-rds-svc-pri.redis.svc.cluster.local
-  REDIS_REPLICA_HOST: mlr-dev-rds-svc-rep.redis.svc.cluster.local
-  REDIS_PORT: "6379"
+  SENTINEL_HOST: "mlr-dev-rds-svc-snt.mlr-dev-rds-ns.svc.cluster.local"
+  SENTINEL_PORT: "26379"
+  SENTINEL_MASTER_NAME: "mymaster"
 
 
