@@ -14,26 +14,26 @@ spec:
         app: frontend
     spec:
       initContainers:
-      - name: wait-for-backend
-        image: 192.168.56.200/mylittlerecipebook/mlr-dev-db-img-msq:1.0
-        command: ['sh', '-c', "until nslookup mlr-dev-be-svc-nod.mlr-dev-be-ns.svc.cluster.local; do echo waiting for backend; sleep 2; done"]
+        - name: wait-for-backend
+          image: 192.168.56.200/mylittlerecipebook/busybox:1.31
+          command: ['sh', '-c', "until nslookup mlr-dev-be-svc-nod.mlr-dev-be-ns.svc.cluster.local; do echo waiting for backend; sleep 2; done"]
       containers:
-      - name: frontend
-        image: 192.168.56.200/mylittlerecipebook/mlr-dev-fe-img:12
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 3000
-        env:
-        - name: API_URL
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-fe-cm
-              key: API_URL
-        - name: FAST_API_URL
-          valueFrom:
-            configMapKeyRef:
-              name: mlr-dev-fe-cm
-              key: FAST_API_URL
+        - name: frontend
+          image: 192.168.56.200/mylittlerecipebook/mlr-dev-fe-img:10
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-fe-cm
+                  key: API_URL
+            - name: FAST_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: mlr-dev-fe-cm
+                  key: FAST_API_URL
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -45,18 +45,20 @@ spec:
   selector:
     matchLabels:
       app: backend
+      tier: node
   template:
     metadata:
       labels:
         app: backend
+        tier: node
     spec:
       initContainers:
         - name: wait-for-db
           image: 192.168.56.200/mylittlerecipebook/busybox:1.31
-          command: ['sh', '-c', "until nslookup mlr-dev-db-svc-pri.mlr-dev-db-ns.svc.cluster.local; do echo waiting for db; sleep 2; done"]
+          command: ['sh', '-c', "until nslookup mlr-dev-db-svc.mlr-dev-db-ns.svc.cluster.local; do echo waiting for db; sleep 2; done"]
       containers:
         - name: backend
-          image: 192.168.56.200/mylittlerecipebook/mlr-dev-be-img-nod:11
+          image: 192.168.56.200/mylittlerecipebook/mlr-dev-be-img-nod:18
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -126,16 +128,11 @@ spec:
                 secretKeyRef:
                   name: mlr-dev-be-sec-nod
                   key: GOOGLE_CLIENT_SECRET
-            - name: MYSQL_WRITE_HOST
+            - name: MYSQL_HOST
               valueFrom:
                 configMapKeyRef:
                   name: mlr-dev-be-cm-nod
-                  key: MYSQL_WRITE_HOST
-            - name: MYSQL_READ_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: mlr-dev-be-cm-nod
-                  key: MYSQL_READ_HOST
+                  key: MYSQL_HOST
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
@@ -162,10 +159,12 @@ spec:
   selector:
     matchLabels:
       app: backend
+      tier: fast
   template:
     metadata:
       labels:
         app: backend
+        tier: fast
     spec:
       initContainers:
         - name: wait-for-redis
@@ -173,7 +172,7 @@ spec:
           command: ['sh', '-c', "until nslookup mlr-dev-rds-svc.mlr-dev-rds-ns.svc.cluster.local; do echo waiting for redis; sleep 2; done"]
       containers:
         - name: backend
-          image: 192.168.56.200/mylittlerecipebook/mlr-dev-be-img-fap:5
+          image: 192.168.56.200/mylittlerecipebook/mlr-dev-be-img-fap:27
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
